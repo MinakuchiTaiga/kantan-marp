@@ -1,0 +1,155 @@
+.presentationRoot {
+  min-height: 100vh;
+  display: grid;
+  grid-template-rows: auto 1fr auto;
+  background: var(--app-background, #f8f8f8);
+}
+
+.presentationTitleBar {
+  display: flex;
+  justify-content: center;
+  padding: 10px 16px 0;
+}
+
+.presentationTitle {
+  margin: 0;
+  text-align: center;
+  font-size: 16px;
+  font-weight: 600;
+  color: #334155;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: min(1280px, 100%);
+}
+
+.presentationStage {
+  padding: 10px 16px 16px;
+  display: grid;
+  place-items: center;
+}
+
+.slideFrame {
+  position: relative;
+  width: min(1280px, 100%);
+  aspect-ratio: 16 / 9;
+}
+
+.laserActive {
+  cursor: none;
+}
+
+.laserActive .navZonePrev,
+.laserActive .navZoneNext {
+  cursor: none;
+}
+
+.slideHost {
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  background: #ffffff;
+  border: 1px solid var(--slide-border, #ccc);
+  border-radius: var(--app-radius, 4px);
+  box-shadow: var(--slide-shadow, 0 2px 4px #efefef);
+  position: relative;
+}
+
+.navZonePrev,
+.navZoneNext {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 25%;
+  border: 0;
+  background: transparent;
+  z-index: 10;
+  padding: 0;
+}
+
+.navZonePrev {
+  left: 0;
+  cursor: w-resize;
+}
+
+.navZoneNext {
+  right: 0;
+  cursor: e-resize;
+}
+
+.navZonePrev:focus-visible,
+.navZoneNext:focus-visible {
+  outline: 2px solid #7aa2f7;
+  outline-offset: -2px;
+}
+
+.slideHost > svg {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+.laserPointer {
+  position: absolute;
+  width: 18px;
+  height: 18px;
+  border-radius: 9999px;
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+  border: 2px solid #ffffff;
+  background: rgb(239 68 68 / 92%);
+  box-shadow:
+    0 0 0 4px rgb(239 68 68 / 22%),
+    0 0 18px rgb(239 68 68 / 55%);
+  z-index: 20;
+}
+
+.presentationRoot:fullscreen .presentationStage {
+  padding: 0;
+}
+
+.presentationRoot:fullscreen .presentationTitleBar {
+  padding: 8px 12px 0;
+}
+
+.presentationRoot:fullscreen .slideHost {
+  border: none;
+}
+
+.presentationRoot:fullscreen .slideFrame {
+  width: min(100vw, calc(100vh * 16 / 9));
+  height: min(100vh, calc(100vw * 9 / 16));
+  aspect-ratio: 16 / 9;
+}
+
+.presentationHud {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 16px 10px;
+  font-size: 12px;
+  color: #787774;
+}
+
+.presentationControls {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.presentationProgress {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 6px;
+  background: rgb(15 23 42 / 12%);
+  z-index: 50;
+  cursor: pointer;
+}
+
+.presentationProgressFill {
+  height: 100%;
+  background: var(--progress-line-color, #009287);
+  transition: width 180ms ease;
+}

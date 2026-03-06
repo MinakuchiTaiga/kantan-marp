@@ -1,0 +1,237 @@
+.editorRoot {
+  height: 100vh;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background: var(--app-background, #f8f8f8);
+  padding: 16px;
+}
+
+.editorHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.editorHeader h1 {
+  font-size: 20px;
+  margin: 0;
+  color: #2f2f2d;
+}
+
+.editorActions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.errorBox {
+  margin: 0 0 12px;
+  border: 1px solid var(--ui-border, #ccc);
+  background: #fff2f2;
+  color: #9f3a38;
+  border-radius: 4px;
+  padding: 10px;
+}
+
+.editorGrid {
+  display: grid;
+  flex: 1;
+  min-height: 0;
+  gap: 12px;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  align-items: start;
+}
+
+.panel {
+  border: 1px solid var(--ui-border, #ccc);
+  border-radius: 4px;
+  padding: 12px;
+  background: #ffffff;
+}
+
+.panel h2 {
+  margin: 0 0 10px;
+  font-size: 14px;
+  font-weight: 600;
+  color: #6b6a67;
+}
+
+.panelPreview {
+  grid-column: 2;
+  grid-row: 1 / span 2;
+  height: 100%;
+  max-height: none;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.editorPanel {
+  grid-column: 1;
+  grid-row: 1 / span 2;
+  height: 100%;
+  max-height: none;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.editorTabs {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 0;
+}
+
+.tabButton {
+  min-width: 96px;
+}
+
+.editorPanelHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+
+.attachmentToggleButton {
+  white-space: nowrap;
+}
+
+.editorMainTextarea {
+  min-height: 0;
+  height: auto;
+  flex: 1;
+}
+
+.editorMainTextarea :global(.cm-editor) {
+  height: 100%;
+  border: 1px solid var(--ui-border, #ccc);
+  border-radius: 4px;
+  background: #ffffff;
+  overflow: hidden;
+}
+
+.editorMainTextarea :global(.cm-scroller) {
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+}
+
+.editorMainTextarea :global(.cm-focused) {
+  outline: 2px solid #7aa2f7;
+  outline-offset: 0;
+}
+
+.attachmentDrawer {
+  margin-top: 12px;
+  border-top: 1px solid var(--ui-border, #ccc);
+  padding-top: 12px;
+}
+
+.previewContent {
+  overflow: auto;
+  height: auto;
+  max-height: none;
+  border: 1px solid var(--ui-border, #ccc);
+  border-radius: 4px;
+  background: #f1f1ef;
+  padding: 14px;
+  flex: 1;
+  min-height: 0;
+}
+
+.previewContent > svg {
+  width: min(100%, 960px);
+  aspect-ratio: 16 / 9;
+  height: auto;
+  display: block;
+  margin: 0 auto 16px;
+  background: #ffffff;
+  border: 1px solid var(--ui-border, #ccc);
+  border-radius: 4px;
+  box-shadow: 0 8px 20px rgb(15 23 42 / 8%);
+}
+
+.previewContent > svg:last-child {
+  margin-bottom: 0;
+}
+
+.fileInput {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--ui-border, #ccc);
+  border-radius: var(--app-radius, 4px);
+  background: #ffffff;
+  color: #37352f;
+  padding: 8px 12px;
+  font-size: 14px;
+  cursor: pointer;
+  margin-bottom: 10px;
+  transition: background 120ms ease;
+}
+
+.fileInput:hover {
+  background: #f4f4f2;
+}
+
+.fileInput input {
+  display: none;
+}
+
+.pasteZone {
+  border: 1px solid var(--ui-border, #ccc);
+  border-radius: 4px;
+  padding: 14px;
+  font-size: 13px;
+  color: #5f5e5b;
+  margin-bottom: 10px;
+  min-height: 64px;
+  resize: none;
+}
+
+.pasteZone:focus {
+  outline: 2px solid #7aa2f7;
+  outline-offset: 2px;
+}
+
+.attachmentList {
+  margin: 0;
+  padding-left: 18px;
+  color: #5f5e5b;
+}
+
+.attachmentEmpty {
+  margin: 0;
+  color: #9b9a97;
+}
+
+@media (max-width: 1024px) {
+  .editorGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .editorPanel,
+  .panelPreview {
+    grid-column: 1;
+    grid-row: auto;
+  }
+
+  .editorPanel,
+  .panelPreview {
+    height: auto;
+    max-height: none;
+  }
+
+  .previewContent {
+    height: 60vh;
+  }
+
+  .editorMainTextarea {
+    min-height: 56vh;
+    height: auto;
+    flex: none;
+  }
+}
