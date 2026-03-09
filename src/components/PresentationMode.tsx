@@ -72,12 +72,14 @@ export const PresentationMode = ({
             type="button"
             aria-label="前のスライドへ移動"
             className={styles.navZonePrev}
+            onMouseDown={(event) => event.preventDefault()}
             onClick={onPreviousSlide}
           />
           <button
             type="button"
             aria-label="次のスライドへ移動"
             className={styles.navZoneNext}
+            onMouseDown={(event) => event.preventDefault()}
             onClick={onNextSlide}
           />
           <div
