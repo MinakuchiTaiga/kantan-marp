@@ -24,13 +24,12 @@ describe('App', () => {
     expect(screen.getByTestId('slide-host')).toBeInTheDocument();
   });
 
-  it('toggles to editor mode by Escape', () => {
+  it('toggles to editor mode by Escape', async () => {
     render(<App />);
     fireEvent.keyDown(window, { key: 'Escape' });
 
-    expect(
-      screen.getByRole('heading', { name: /KanTan Marp Editor/i }),
-    ).toBeInTheDocument();
+    expect(await screen.findByRole('heading', { name: /KanTan Marp Editor/i }))
+      .toBeInTheDocument();
     expect(
       screen.getByRole('button', { name: /保存 \(Ctrl\+S\)/i }),
     ).toBeInTheDocument();

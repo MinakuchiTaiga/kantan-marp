@@ -5,6 +5,89 @@
     <link rel="icon" type="image/png" href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAQAAAC1+jfqAAAABGdBTUEAALGPC/xhBQAAACBjSFJNAAB6JgAAgIQAAPoAAACA6AAAdTAAAOpgAAA6mAAAF3CculE8AAAAAmJLR0QAAKqNIzIAAAAHdElNRQfoAwcCOzWFMY5TAAAA70lEQVQoz4XRvUpcYRDG8d/7nrWxsMlHFbCwsPYu0qWVFJYJKF6E1xAs03kRQi4gdyCGDSmOYLFZSDAoLjn7PimOsoUa/8M0M8M8wzOymT5P0WdTzvM/zkuWasRDikIrLUWMueK+EhP45rM1VTHoVIOJWx9twZDkQ2a5yVXm+Ztf+ZlF5rnMfpJl6qj2yoZTzZozL+2Yeq2DUaJhsG8DC8wsRUPU1WGfvLNt3bG594q22tDhhbd2fRUHvju8a5VxIC788MeVL671jvzWW45utBS9E51OMaiqplrY80Y8a9Sd1Y9TaNV0dP2xwNRz7/4HUjO+JmXuyBcAAAAldEVYdGRhdGU6Y3JlYXRlADIwMjQtMDMtMDdUMDI6NTk6NTMrMDA6MDCahK0UAAAAJXRFWHRkYXRlOm1vZGlmeQAyMDI0LTAzLTA3VDAyOjU5OjUzKzAwOjAw69kVqAAAAABJRU5ErkJggg==">
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>KanTan Marp</title>
+    <script id="kantan-default-markdown" type="text/plain">
+---
+marp: true
+theme: default
+paginate: true
+---
+
+# Markdown Samples
+Esc で編集モードへ切り替え
+
+---
+
+## 1. 見出し・強調・インライン記法
+
+これは **太字**、これは *斜体*、これは ~~取り消し~~。  
+インラインコード: `const answer = 42`
+
+---
+
+## 2. リスト
+
+- 箇条書き A
+- 箇条書き B
+  - ネスト B-1
+  - ネスト B-2
+- 箇条書き C
+
+1. 番号付き 1
+2. 番号付き 2
+3. 番号付き 3
+
+---
+
+## 3. 引用・区切り・チェックリスト
+
+> これは引用です。  
+> 複数行の引用も確認できます。
+
+- [x] チェック済み
+- [ ] 未チェック
+
+---
+
+## 4. テーブル
+
+| 項目 | 説明 | 値 |
+| --- | --- | ---: |
+| A | サンプル行 | 10 |
+| B | 右寄せ列の確認 | 20 |
+| C | 表の見た目チェック | 30 |
+
+---
+
+## 5. コードブロック
+
+```ts
+type User = { id: number; name: string };
+
+const users: User[] = [
+  { id: 1, name: 'Aoi' },
+  { id: 2, name: 'Ren' },
+];
+
+console.log(users.map((u) => u.name).join(', '));
+```
+
+---
+
+## 6. 画像
+
+下の例はプレースホルダーです。  
+編集モードの画像添付フォームから貼り付けると、`data:` URL がここに入ります。
+
+![sample image](./images/sample.png)
+
+---
+
+## 7. 水平線と最終ページ
+
+---
+
+以上で主要な Markdown 記法サンプルは一通りです。
+    </script>
   </head>
   <body>
     <div id="root"></div>

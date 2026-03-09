@@ -105,23 +105,19 @@
   min-height: 0;
   height: auto;
   flex: 1;
-}
-
-.editorMainTextarea :global(.cm-editor) {
-  height: 100%;
+  width: 100%;
   border: 1px solid var(--ui-border, #ccc);
   border-radius: 4px;
   background: #ffffff;
-  overflow: hidden;
-}
-
-.editorMainTextarea :global(.cm-scroller) {
   font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  line-height: 1.5;
+  padding: 12px;
+  resize: none;
 }
 
-.editorMainTextarea :global(.cm-focused) {
+.editorMainTextarea:focus {
   outline: 2px solid #7aa2f7;
-  outline-offset: 0;
+  outline-offset: 2px;
 }
 
 .attachmentDrawer {

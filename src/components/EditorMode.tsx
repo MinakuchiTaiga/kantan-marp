@@ -1,14 +1,7 @@
-import type { EditorView } from '@codemirror/view';
-import type { ComponentProps } from 'react';
-import { githubLight } from '@uiw/codemirror-theme-github';
-import CodeMirror from '@uiw/react-codemirror';
+import type { RefObject } from 'react';
 import type { EditorTab } from '../types/presentation';
 import { Button } from './ui/Button';
 import styles from './EditorMode.module.css';
-
-type CodeMirrorExtensions = NonNullable<
-  ComponentProps<typeof CodeMirror>['extensions']
->;
 
 type AttachmentItem = {
   id: number;
@@ -24,13 +17,11 @@ type EditorModeProps = {
   showAttachmentPane: boolean;
   attachments: AttachmentItem[];
   errorMessage: string | null;
-  markdownExtensions: CodeMirrorExtensions;
-  cssExtensions: CodeMirrorExtensions;
+  markdownTextareaRef: RefObject<HTMLTextAreaElement | null>;
   onBackToPresentation: () => void;
   onDownloadLite: () => void;
   onChangeMarkdown: (value: string) => void;
   onChangeUserCss: (value: string) => void;
-  onCreateMarkdownEditor: (view: EditorView) => void;
   onToggleAttachmentPane: () => void;
   onSelectEditorTab: (tab: EditorTab) => void;
   onAttachInputChange: (
@@ -48,13 +39,11 @@ export const EditorMode = ({
   showAttachmentPane,
   attachments,
   errorMessage,
-  markdownExtensions,
-  cssExtensions,
+  markdownTextareaRef,
   onBackToPresentation,
   onDownloadLite,
   onChangeMarkdown,
   onChangeUserCss,
-  onCreateMarkdownEditor,
   onToggleAttachmentPane,
   onSelectEditorTab,
   onAttachInputChange,
@@ -106,24 +95,25 @@ export const EditorMode = ({
               : '画像添付フォームを表示'}
           </Button>
         </div>
+
         {editorTab === 'markdown' ? (
-          <CodeMirror
+          <textarea
+            ref={markdownTextareaRef}
             className={`${styles.editorMainTextarea} editor-main-textarea`}
+            spellCheck={false}
             value={markdown}
-            onChange={onChangeMarkdown}
-            extensions={markdownExtensions}
-            theme={githubLight}
-            onCreateEditor={onCreateMarkdownEditor}
+            onChange={(event) => onChangeMarkdown(event.target.value)}
+            onPaste={onPasteImage}
           />
         ) : (
-          <CodeMirror
+          <textarea
             className={`${styles.editorMainTextarea} editor-main-textarea`}
+            spellCheck={false}
             value={userCss}
-            onChange={onChangeUserCss}
-            extensions={cssExtensions}
-            theme={githubLight}
+            onChange={(event) => onChangeUserCss(event.target.value)}
           />
         )}
+
         {showAttachmentPane ? (
           <section className={styles.attachmentDrawer}>
             <h2>画像添付フォーム</h2>

@@ -4,14 +4,16 @@ type ExportHtmlParams = {
   title: string;
   markdown: string;
   userCss: string;
+  defaultUserCss: string;
 };
 
 type ExportBootState = {
   markdown: string;
-  userCss: string;
+  userCss?: string;
 };
 
 const BOOT_STATE_ID = 'kantan-initial-state';
+const DEFAULT_MARKDOWN_ID = 'kantan-default-markdown';
 
 const scriptSafeText = (value: string): string =>
   value.replaceAll('</script', '<\\/script');
@@ -50,11 +52,27 @@ const fetchText = async (url: string): Promise<string> => {
 };
 
 const resolveBaseHtml = async (): Promise<{ html: string; baseUrl: string }> => {
+  const currentUrl = window.location.href;
+  try {
+    const currentResponse = await fetch(currentUrl, { cache: 'no-store' });
+    if (currentResponse.ok) {
+      const fetchedHtml = await currentResponse.text();
+      if (isProductionHtml(fetchedHtml)) {
+        return {
+          html: fetchedHtml,
+          baseUrl: currentUrl,
+        };
+      }
+    }
+  } catch {
+    // Fall back to current DOM for standalone / file:// cases.
+  }
+
   const currentHtml = document.documentElement.outerHTML;
   if (isProductionHtml(currentHtml)) {
     return {
       html: currentHtml,
-      baseUrl: window.location.href,
+      baseUrl: currentUrl,
     };
   }
 
@@ -81,14 +99,19 @@ export const createDownloadHtml = async ({
   title,
   markdown,
   userCss,
+  defaultUserCss,
 }: ExportHtmlParams): Promise<string> => {
   const { html: baseHtml, baseUrl } = await resolveBaseHtml();
   const parser = new DOMParser();
   const doc = parser.parseFromString(baseHtml, 'text/html');
 
+  const minifiedUserCss = minifyCss(userCss);
+  const minifiedDefaultUserCss = minifyCss(defaultUserCss);
+
   const state: ExportBootState = {
     markdown,
-    userCss: minifyCss(userCss),
+    userCss:
+      minifiedUserCss === minifiedDefaultUserCss ? undefined : minifiedUserCss,
   };
   const stateJson = JSON.stringify(state).replaceAll('<', '\\u003c');
 
@@ -103,7 +126,7 @@ export const createDownloadHtml = async ({
     const css = await fetchText(cssUrl);
     const style = doc.createElement('style');
     style.setAttribute('data-inline-from', cssUrl);
-    style.textContent = minifyCss(css);
+    style.textContent = css.trim();
     link.replaceWith(style);
   }
 
@@ -132,6 +155,17 @@ export const createDownloadHtml = async ({
   const head = doc.head ?? doc.createElement('head');
   if (!doc.head) {
     doc.documentElement.insertBefore(head, doc.body ?? null);
+  }
+
+  // Remove runtime-rendered DOM to avoid duplicating markdown payload in saved HTML.
+  const root = doc.getElementById('root');
+  if (root) {
+    root.innerHTML = '';
+  }
+
+  const defaultMarkdown = doc.getElementById(DEFAULT_MARKDOWN_ID);
+  if (defaultMarkdown) {
+    defaultMarkdown.remove();
   }
 
   let robotsMeta = head.querySelector('meta[name="robots"]');

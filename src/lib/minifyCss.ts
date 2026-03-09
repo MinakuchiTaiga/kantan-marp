@@ -15,7 +15,7 @@ export const minifyCss = (value: string): string => {
   if (!input) return '';
 
   const minified = minifyWithCssom(input);
-  if (minified !== null) return minified;
+  if (minified !== null && minified.length < input.length) return minified;
 
   return input;
 };
