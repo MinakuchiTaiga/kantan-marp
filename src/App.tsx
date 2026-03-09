@@ -43,7 +43,8 @@ const readBootstrapState = (): BootstrapState => {
 const readDefaultMarkdown = (): string => {
   const defaultMarkdownElement = document.getElementById(DEFAULT_MARKDOWN_ID);
   if (!defaultMarkdownElement?.textContent) return DEFAULT_MARKDOWN;
-  return defaultMarkdownElement.textContent;
+  const markdown = defaultMarkdownElement.textContent;
+  return markdown.replace(/^\s*(?=---(?:\r?\n|$))/, '');
 };
 
 function App() {
