@@ -149,12 +149,15 @@
 
 .presentationRoot:fullscreen .slideHost {
   border: none;
+  border-radius: 0;
+  box-shadow: none;
 }
 
 .presentationRoot:fullscreen .slideFrame {
-  width: min(100vw, calc(100vh * 16 / 9));
-  height: min(100vh, calc(100vw * 9 / 16));
-  aspect-ratio: 16 / 9;
+  width: 100vw;
+  height: 100vh;
+  max-height: none;
+  aspect-ratio: auto;
 }
 
 .presentationRoot:fullscreen .navZonePrev,
@@ -176,7 +179,7 @@
   display: none;
 }
 
-.presentationRoot:fullscreen .presentationNavControls > button {
+.presentationRoot:fullscreen .presentationNavControls {
   display: none;
 }
 
