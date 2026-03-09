@@ -39,7 +39,6 @@ const isProductionHtml = (html: string): boolean => {
   if (scriptSources.some(isDevScriptSource)) return false;
   if (scriptSources.some((src) => src.includes('/assets/'))) return true;
 
-  // Saved standalone HTML has no external script/style references.
   return scriptSources.length === 0 && stylesheetLinks.length === 0;
 };
 
@@ -95,6 +94,9 @@ const resolveBaseHtml = async (): Promise<{ html: string; baseUrl: string }> => 
   );
 };
 
+const minifyExportHtml = (html: string): string =>
+  html.replace(/>\s+</g, '><').trim();
+
 export const createDownloadHtml = async ({
   title,
   markdown,
@@ -125,7 +127,6 @@ export const createDownloadHtml = async ({
     const cssUrl = new URL(href, baseUrl).href;
     const css = await fetchText(cssUrl);
     const style = doc.createElement('style');
-    style.setAttribute('data-inline-from', cssUrl);
     style.textContent = css.trim();
     link.replaceWith(style);
   }
@@ -157,7 +158,6 @@ export const createDownloadHtml = async ({
     doc.documentElement.insertBefore(head, doc.body ?? null);
   }
 
-  // Remove runtime-rendered DOM to avoid duplicating markdown payload in saved HTML.
   const root = doc.getElementById('root');
   if (root) {
     root.innerHTML = '';
@@ -176,6 +176,14 @@ export const createDownloadHtml = async ({
   }
   robotsMeta.setAttribute('content', 'noindex, nofollow');
 
+  let referrerMeta = head.querySelector('meta[name="referrer"]');
+  if (!referrerMeta) {
+    referrerMeta = doc.createElement('meta');
+    referrerMeta.setAttribute('name', 'referrer');
+    head.append(referrerMeta);
+  }
+  referrerMeta.setAttribute('content', 'no-referrer');
+
   doc.title = title.trim() || 'KanTan Marp';
 
   const existingState = doc.getElementById(BOOT_STATE_ID);
@@ -192,5 +200,5 @@ export const createDownloadHtml = async ({
     head.append(stateScript);
   }
 
-  return `<!doctype html>\n${doc.documentElement.outerHTML}`;
+  return minifyExportHtml(`<!doctype html>\n${doc.documentElement.outerHTML}`);
 };
