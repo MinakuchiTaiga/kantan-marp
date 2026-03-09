@@ -19,7 +19,6 @@ type PresentationModeProps = {
   onToggleMode: () => void;
   onToggleLaser: () => void;
   onDownloadLite: () => void;
-  onDownloadSecure: () => void;
   onNextSlide: () => void;
   onPreviousSlide: () => void;
   onSeekSlide: (ratio: number) => void;
@@ -44,7 +43,6 @@ export const PresentationMode = ({
   onToggleMode,
   onToggleLaser,
   onDownloadLite,
-  onDownloadSecure,
   onNextSlide,
   onPreviousSlide,
   onSeekSlide,
@@ -103,9 +101,24 @@ export const PresentationMode = ({
         </div>
       </section>
       <footer className={styles.presentationHud}>
-        <span>
-          Esc: 編集モード | Ctrl+L: レーザー
-          {laserEnabled ? ' ON' : ' OFF'}
+        <span className={styles.presentationNavControls}>
+          <Button
+            className="presentation-fullscreen-button"
+            onClick={onPreviousSlide}
+            aria-label="前のスライドへ移動"
+            title="前のスライドへ移動"
+          >
+            <span className={styles.triangleLeft} aria-hidden="true" />
+          </Button>
+          <Button
+            className="presentation-fullscreen-button"
+            onClick={onNextSlide}
+            aria-label="次のスライドへ移動"
+            title="次のスライドへ移動"
+          >
+            <span className={styles.triangleRight} aria-hidden="true" />
+          </Button>
+          {slideIndex + 1} / {totalSlides}
         </span>
         <span className={styles.presentationControls}>
           <Button className="presentation-fullscreen-button" onClick={onToggleMode}>
@@ -121,13 +134,7 @@ export const PresentationMode = ({
             className="presentation-fullscreen-button"
             onClick={onDownloadLite}
           >
-            軽量版保存
-          </Button>
-          <Button
-            className="presentation-fullscreen-button"
-            onClick={onDownloadSecure}
-          >
-            セキュア版保存
+            保存 (Ctrl+S)
           </Button>
           <Button
             className="presentation-fullscreen-button"
@@ -135,9 +142,6 @@ export const PresentationMode = ({
           >
             {isFullscreen ? '全画面解除' : '全画面表示'}
           </Button>
-          <span>
-            {slideIndex + 1} / {totalSlides}
-          </span>
         </span>
       </footer>
       {!isFullscreen ? (

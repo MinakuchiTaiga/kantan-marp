@@ -28,7 +28,6 @@ type EditorModeProps = {
   cssExtensions: CodeMirrorExtensions;
   onBackToPresentation: () => void;
   onDownloadLite: () => void;
-  onDownloadSecure: () => void;
   onChangeMarkdown: (value: string) => void;
   onChangeUserCss: (value: string) => void;
   onCreateMarkdownEditor: (view: EditorView) => void;
@@ -53,7 +52,6 @@ export const EditorMode = ({
   cssExtensions,
   onBackToPresentation,
   onDownloadLite,
-  onDownloadSecure,
   onChangeMarkdown,
   onChangeUserCss,
   onCreateMarkdownEditor,
@@ -71,10 +69,7 @@ export const EditorMode = ({
           プレゼン表示 (Esc)
         </Button>
         <Button onClick={onDownloadLite}>
-          軽量版を保存
-        </Button>
-        <Button onClick={onDownloadSecure}>
-          セキュア版を保存
+          保存 (Ctrl+S)
         </Button>
       </div>
     </header>
