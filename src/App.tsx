@@ -11,7 +11,7 @@ import { useMarpSlides } from './hooks/useMarpSlides';
 import { usePresentationShortcuts } from './hooks/usePresentationShortcuts';
 import { insertAtSelection, toDataUrl } from './lib/attachment';
 import { createDownloadHtml } from './lib/exportHtml';
-import { EXPORT_FILE_NAME } from './lib/exportVariant';
+import { createExportFileName } from './lib/exportVariant';
 import {
   extractImageFilesFromClipboard,
   pickSupportedImageFiles,
@@ -380,7 +380,7 @@ function App() {
     const anchor = document.createElement('a');
 
     anchor.href = objectUrl;
-    anchor.download = EXPORT_FILE_NAME;
+    anchor.download = createExportFileName(presentationTitle);
     document.body.append(anchor);
     anchor.click();
     anchor.remove();
