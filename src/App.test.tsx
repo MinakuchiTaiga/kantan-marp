@@ -2,8 +2,8 @@ import { fireEvent, render, screen } from '@testing-library/react';
 import { vi } from 'vitest';
 import App from './App';
 
-vi.mock('@marp-team/marp-core', () => {
-  class MockMarp {
+vi.mock('@marp-team/marpit', () => {
+  class MockMarpit {
     render() {
       return {
         html: ['<section><h1>Mock Slide</h1></section>'],
@@ -12,13 +12,15 @@ vi.mock('@marp-team/marp-core', () => {
     }
   }
 
-  return { Marp: MockMarp };
+  return { Marpit: MockMarpit, default: MockMarpit };
 });
 
 describe('App', () => {
   it('starts in presentation mode', () => {
     render(<App />);
-    expect(screen.getByText(/Esc: 編集モード/i)).toBeInTheDocument();
+    expect(
+      screen.getByRole('button', { name: /編集モード \(Esc\)/i }),
+    ).toBeInTheDocument();
     expect(screen.getByTestId('slide-host')).toBeInTheDocument();
   });
 
@@ -30,10 +32,10 @@ describe('App', () => {
       screen.getByRole('heading', { name: /KanTan Marp Editor/i }),
     ).toBeInTheDocument();
     expect(
-      screen.getByRole('button', { name: /軽量版を保存/i }),
+      screen.getByRole('button', { name: /保存 \(Ctrl\+S\)/i }),
     ).toBeInTheDocument();
     expect(
-      screen.getByRole('button', { name: /セキュア版を保存/i }),
-    ).toBeInTheDocument();
+      screen.queryByRole('button', { name: /セキュア版を保存/i }),
+    ).not.toBeInTheDocument();
   });
 });

@@ -1,16 +1,19 @@
-import { Marp } from '@marp-team/marp-core';
+import { Marpit } from '@marp-team/marpit';
 import { useMemo } from 'react';
 import type { RenderedSlides } from '../types/presentation';
 
-const marp = new Marp({
-  html: false,
-  script: false,
+const marpit = new Marpit({
+  inlineSVG: true,
+  looseYAML: true,
+  markdown: {
+    breaks: true,
+  },
 });
 
 export const useMarpSlides = (markdown: string): RenderedSlides =>
   useMemo(() => {
     try {
-      const { html, css } = marp.render(markdown, { htmlAsArray: true });
+      const { html, css } = marpit.render(markdown, { htmlAsArray: true });
       const slides = Array.isArray(html) ? html : [html];
 
       return {

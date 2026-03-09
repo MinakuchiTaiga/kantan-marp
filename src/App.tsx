@@ -4,13 +4,14 @@ import { HighlightStyle, syntaxHighlighting } from '@codemirror/language';
 import type { EditorView } from '@codemirror/view';
 import { tags } from '@lezer/highlight';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import marpDefaultThemeCss from './assets/marp-default-theme.css?raw';
 import { EditorMode } from './components/EditorMode';
 import { PresentationMode } from './components/PresentationMode';
 import { useMarpSlides } from './hooks/useMarpSlides';
 import { usePresentationShortcuts } from './hooks/usePresentationShortcuts';
 import { insertAtSelection, toDataUrl } from './lib/attachment';
 import { createDownloadHtml } from './lib/exportHtml';
-import { EXPORT_FILE_NAME, type ExportVariant } from './lib/exportVariant';
+import { EXPORT_FILE_NAME } from './lib/exportVariant';
 import {
   extractImageFilesFromClipboard,
   pickSupportedImageFiles,
@@ -101,25 +102,7 @@ console.log(users.map((u) => u.name).join(', '));
 以上で主要な Markdown 記法サンプルは一通りです。
 `;
 
-const DEFAULT_USER_CSS = `/* Slide theme */
-section {
-  font-family: "Noto Sans JP", "Hiragino Sans", sans-serif;
-}
-
-section h1 {
-  color: #0f172a;
-}
-
-section h2 {
-  color: #0f172a;
-}
-
-.slide-host h1,
-.preview-content h1,
-.slide-host h2,
-.preview-content h2 {
-  color: var(--slide-heading-color, #0f172a) !important;
-}
+const DEFAULT_USER_CSS = `${marpDefaultThemeCss}
 
 /* App UI (editor / presentation) */
 :root {
@@ -129,7 +112,6 @@ section h2 {
   --slide-border: #ccc;
   --slide-shadow: 0 2px 4px #efefef;
   --progress-line-color: #009287;
-  --slide-heading-color: #0f172a;
 }
 
 body {
@@ -178,6 +160,23 @@ textarea {
 const createMarkdownImageText = (name: string, dataUrl: string): string =>
   `\n![${name}](${dataUrl})\n`;
 
+type BootstrapState = {
+  markdown?: string;
+  userCss?: string;
+};
+
+const readBootstrapState = (): BootstrapState => {
+  const stateElement = document.getElementById('kantan-initial-state');
+  if (!stateElement?.textContent) return {};
+
+  try {
+    const parsed = JSON.parse(stateElement.textContent) as BootstrapState;
+    return parsed ?? {};
+  } catch {
+    return {};
+  }
+};
+
 const markdownHighlightStyle = HighlightStyle.define([
   {
     tag: [tags.heading],
@@ -195,9 +194,15 @@ const markdownHighlightStyle = HighlightStyle.define([
 ]);
 
 function App() {
+  const bootstrapState = useMemo(readBootstrapState, []);
+
   const [mode, setMode] = useState<Mode>('presentation');
-  const [markdown, setMarkdown] = useState(DEFAULT_MARKDOWN);
-  const [userCss, setUserCss] = useState(DEFAULT_USER_CSS);
+  const [markdown, setMarkdown] = useState(
+    bootstrapState.markdown ?? DEFAULT_MARKDOWN,
+  );
+  const [userCss, setUserCss] = useState(
+    bootstrapState.userCss ?? DEFAULT_USER_CSS,
+  );
   const [slideIndex, setSlideIndex] = useState(0);
   const [editorTab, setEditorTab] = useState<EditorTab>('markdown');
   const [showAttachmentPane, setShowAttachmentPane] = useState(false);
@@ -363,30 +368,44 @@ function App() {
     [handleAttachFiles],
   );
 
-  const downloadStandaloneHtml = useCallback(
-    (variant: ExportVariant) => {
-      const html = createDownloadHtml({
-        variant,
-        title: presentationTitle,
-        markdown,
-        marpCss: rendered.css,
-        userCss,
-        slides: rendered.slides,
-      });
+  const downloadStandaloneHtml = useCallback(async () => {
+    const html = await createDownloadHtml({
+      title: presentationTitle,
+      markdown,
+      userCss,
+    });
 
-      const blob = new Blob([html], { type: 'text/html;charset=utf-8' });
-      const objectUrl = URL.createObjectURL(blob);
-      const anchor = document.createElement('a');
+    const blob = new Blob([html], { type: 'text/html;charset=utf-8' });
+    const objectUrl = URL.createObjectURL(blob);
+    const anchor = document.createElement('a');
 
-      anchor.href = objectUrl;
-      anchor.download = EXPORT_FILE_NAME[variant];
-      document.body.append(anchor);
-      anchor.click();
-      anchor.remove();
-      URL.revokeObjectURL(objectUrl);
-    },
-    [markdown, presentationTitle, rendered.css, rendered.slides, userCss],
-  );
+    anchor.href = objectUrl;
+    anchor.download = EXPORT_FILE_NAME;
+    document.body.append(anchor);
+    anchor.click();
+    anchor.remove();
+    URL.revokeObjectURL(objectUrl);
+  }, [markdown, presentationTitle, userCss]);
+
+  const triggerDownloadStandaloneHtml = useCallback(() => {
+    void downloadStandaloneHtml().catch(() => {
+      setErrorMessage(
+        '保存用HTMLの生成に失敗しました。pnpm run build 実行後、dist/index.html を開いて再試行してください。',
+      );
+    });
+  }, [downloadStandaloneHtml]);
+
+  useEffect(() => {
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (!(event.ctrlKey || event.metaKey)) return;
+      if (event.key.toLowerCase() !== 's') return;
+      event.preventDefault();
+      triggerDownloadStandaloneHtml();
+    };
+
+    window.addEventListener('keydown', onKeyDown);
+    return () => window.removeEventListener('keydown', onKeyDown);
+  }, [triggerDownloadStandaloneHtml]);
 
   const toggleFullscreen = async () => {
     try {
@@ -438,8 +457,7 @@ function App() {
         onToggleFullscreen={toggleFullscreen}
         onToggleMode={toggleMode}
         onToggleLaser={toggleLaser}
-        onDownloadLite={() => downloadStandaloneHtml('lite')}
-        onDownloadSecure={() => downloadStandaloneHtml('secure')}
+        onDownloadLite={triggerDownloadStandaloneHtml}
         onNextSlide={nextSlide}
         onPreviousSlide={previousSlide}
         onSeekSlide={seekSlideByRatio}
@@ -461,8 +479,7 @@ function App() {
       markdownExtensions={markdownExtensions}
       cssExtensions={cssExtensions}
       onBackToPresentation={() => setMode('presentation')}
-      onDownloadLite={() => downloadStandaloneHtml('lite')}
-      onDownloadSecure={() => downloadStandaloneHtml('secure')}
+      onDownloadLite={triggerDownloadStandaloneHtml}
       onChangeMarkdown={setMarkdown}
       onChangeUserCss={setUserCss}
       onCreateMarkdownEditor={(view) => {
