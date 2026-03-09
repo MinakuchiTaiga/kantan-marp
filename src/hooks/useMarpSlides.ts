@@ -1,6 +1,7 @@
 import { Marpit } from '@marp-team/marpit';
 import { useMemo } from 'react';
 import { highlightCode } from '../lib/highlight';
+import { applyLinkPolicy } from '../lib/linkPolicy';
 import { minifyCss } from '../lib/minifyCss';
 import type { RenderedSlides } from '../types/presentation';
 
@@ -17,7 +18,7 @@ export const useMarpSlides = (markdown: string): RenderedSlides =>
   useMemo(() => {
     try {
       const { html, css } = marpit.render(markdown, { htmlAsArray: true });
-      const slides = Array.isArray(html) ? html : [html];
+      const slides = (Array.isArray(html) ? html : [html]).map(applyLinkPolicy);
 
       return {
         slides,
