@@ -1,3 +1,5 @@
+import { minifyCss } from './minifyCss';
+
 type ExportHtmlParams = {
   title: string;
   markdown: string;
@@ -86,7 +88,7 @@ export const createDownloadHtml = async ({
 
   const state: ExportBootState = {
     markdown,
-    userCss,
+    userCss: minifyCss(userCss),
   };
   const stateJson = JSON.stringify(state).replaceAll('<', '\\u003c');
 
@@ -101,7 +103,7 @@ export const createDownloadHtml = async ({
     const css = await fetchText(cssUrl);
     const style = doc.createElement('style');
     style.setAttribute('data-inline-from', cssUrl);
-    style.textContent = css;
+    style.textContent = minifyCss(css);
     link.replaceWith(style);
   }
 

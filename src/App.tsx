@@ -103,58 +103,7 @@ console.log(users.map((u) => u.name).join(', '));
 `;
 
 const DEFAULT_USER_CSS = `${marpDefaultThemeCss}
-
-/* App UI (editor / presentation) */
-:root {
-  --app-background: #f8f8f8;
-  --app-radius: 4px;
-  --ui-border: #ccc;
-  --slide-border: #ccc;
-  --slide-shadow: 0 2px 4px #efefef;
-  --progress-line-color: #009287;
-}
-
-body {
-  background: var(--app-background);
-}
-
-button {
-  border: 1px solid var(--ui-border);
-  border-radius: var(--app-radius);
-}
-
-textarea {
-  border: 1px solid var(--ui-border);
-  border-radius: var(--app-radius);
-}
-
-.presentation-root,
-.editor-root {
-  background: var(--app-background);
-}
-
-.slide-host {
-  border: 1px solid var(--slide-border);
-  border-radius: var(--app-radius);
-  box-shadow: var(--slide-shadow);
-}
-
-.presentation-fullscreen-button {
-  border-radius: var(--app-radius);
-}
-
-.presentation-progress-fill {
-  background: var(--progress-line-color);
-}
-
-.panel,
-.error-box,
-.editor-main-textarea .cm-editor,
-.preview-content,
-.paste-zone {
-  border-color: var(--ui-border);
-  border-radius: var(--app-radius);
-}
+:root{--app-background:#f8f8f8;--app-radius:4px;--ui-border:#ccc;--slide-border:#ccc;--slide-shadow:0 2px 4px #efefef;--progress-line-color:#009287}body{background:var(--app-background)}button,textarea{border:1px solid var(--ui-border);border-radius:var(--app-radius)}.presentation-root,.editor-root{background:var(--app-background)}.slide-host{border:1px solid var(--slide-border);border-radius:var(--app-radius);box-shadow:var(--slide-shadow)}.presentation-fullscreen-button{border-radius:var(--app-radius)}.presentation-progress-fill{background:var(--progress-line-color)}.panel,.error-box,.editor-main-textarea .cm-editor,.preview-content,.paste-zone{border-color:var(--ui-border);border-radius:var(--app-radius)}
 `;
 
 const createMarkdownImageText = (name: string, dataUrl: string): string =>

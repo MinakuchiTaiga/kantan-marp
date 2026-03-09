@@ -1,5 +1,7 @@
 import { Marpit } from '@marp-team/marpit';
 import { useMemo } from 'react';
+import { highlightCode } from '../lib/highlight';
+import { minifyCss } from '../lib/minifyCss';
 import type { RenderedSlides } from '../types/presentation';
 
 const marpit = new Marpit({
@@ -7,6 +9,7 @@ const marpit = new Marpit({
   looseYAML: true,
   markdown: {
     breaks: true,
+    highlight: highlightCode,
   },
 });
 
@@ -18,7 +21,7 @@ export const useMarpSlides = (markdown: string): RenderedSlides =>
 
       return {
         slides,
-        css,
+        css: minifyCss(css),
         error: null,
       };
     } catch (error) {

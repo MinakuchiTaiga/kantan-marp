@@ -167,7 +167,21 @@
 
 .presentationRoot:fullscreen .navZonePrev,
 .presentationRoot:fullscreen .navZoneNext {
-  display: none;
+  display: block;
+}
+
+.presentationRoot:fullscreen .navZonePrev:hover,
+.presentationRoot:fullscreen .navZoneNext:hover,
+.presentationRoot:fullscreen .navZonePrev:focus-visible,
+.presentationRoot:fullscreen .navZoneNext:focus-visible {
+  background: transparent;
+}
+
+.presentationRoot:fullscreen .navZonePrev:hover::after,
+.presentationRoot:fullscreen .navZoneNext:hover::after,
+.presentationRoot:fullscreen .navZonePrev:focus-visible::after,
+.presentationRoot:fullscreen .navZoneNext:focus-visible::after {
+  opacity: 0;
 }
 
 .presentationRoot:fullscreen .presentationControls {
