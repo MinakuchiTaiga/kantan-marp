@@ -1,5 +1,6 @@
 import { useMemo, useRef } from 'react';
 import type { RefObject, UIEvent } from 'react';
+import kantanLogo from '../assets/kantan-logo.svg';
 import { highlightMarkdown } from '../lib/highlight';
 import type { EditorTab } from '../types/presentation';
 import { Button } from './ui/Button';
@@ -67,7 +68,10 @@ export const EditorMode = ({
     <main className={`${styles.editorRoot} editor-root`} onPaste={onPasteImage}>
       <style>{`${renderedCss}\n${userCss}`}</style>
       <header className={styles.editorHeader}>
-        <h1>KanTan Marp Editor</h1>
+        <h1 className={styles.editorBrand}>
+          <img src={kantanLogo} alt="" aria-hidden="true" />
+          <span>KanTan Marp Editor</span>
+        </h1>
         <div className={styles.editorActions}>
           <Button onClick={onBackToPresentation}>
             プレゼン表示 (Esc)
@@ -146,7 +150,7 @@ export const EditorMode = ({
 
           {showAttachmentPane ? (
             <section className={styles.attachmentDrawer}>
-              <h2>画像添付フォーム</h2>
+              <h2 className={styles.panelHeading}>画像添付フォーム</h2>
               <label className={styles.fileInput}>
                 画像を選択
                 <input
@@ -179,7 +183,7 @@ export const EditorMode = ({
         </article>
 
         <article className={`${styles.panel} ${styles.panelPreview} panel panel-preview`}>
-          <h2>プレビュー</h2>
+          <h2 className={styles.panelHeading}>プレビュー</h2>
           <div
             className={`${styles.previewContent} preview-content marpit`}
             // biome-ignore lint/security/noDangerouslySetInnerHtml: Preview requires rendering Marp HTML string.
