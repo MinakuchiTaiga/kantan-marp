@@ -4,6 +4,7 @@ import css from 'highlight.js/lib/languages/css';
 import diff from 'highlight.js/lib/languages/diff';
 import javascript from 'highlight.js/lib/languages/javascript';
 import json from 'highlight.js/lib/languages/json';
+import markdown from 'highlight.js/lib/languages/markdown';
 import php from 'highlight.js/lib/languages/php';
 import python from 'highlight.js/lib/languages/python';
 import sql from 'highlight.js/lib/languages/sql';
@@ -16,6 +17,7 @@ hljs.registerLanguage('css', css);
 hljs.registerLanguage('diff', diff);
 hljs.registerLanguage('javascript', javascript);
 hljs.registerLanguage('json', json);
+hljs.registerLanguage('markdown', markdown);
 hljs.registerLanguage('php', php);
 hljs.registerLanguage('python', python);
 hljs.registerLanguage('sql', sql);
@@ -31,6 +33,8 @@ const languageAliasMap: Record<string, string> = {
   javascript: 'javascript',
   js: 'javascript',
   json: 'json',
+  markdown: 'markdown',
+  md: 'markdown',
   php: 'php',
   py: 'python',
   python: 'python',
@@ -64,4 +68,11 @@ export const highlightCode = (code: string, language?: string) => {
   }).value;
 
   return `<pre><code class="hljs language-${resolvedLanguage}">${value}</code></pre>`;
+};
+
+export const highlightMarkdown = (markdownText: string) => {
+  return hljs.highlight(markdownText, {
+    language: 'markdown',
+    ignoreIllegals: true,
+  }).value;
 };

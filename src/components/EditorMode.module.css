@@ -110,9 +110,112 @@
   border-radius: 4px;
   background: #ffffff;
   font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 14px;
   line-height: 1.5;
+  tab-size: 2;
   padding: 12px;
   resize: none;
+}
+
+.markdownEditorLayer {
+  position: relative;
+  min-height: 0;
+  flex: 1;
+  border: 1px solid var(--ui-border, #ccc);
+  border-radius: 4px;
+  background: #ffffff;
+  overflow: hidden;
+}
+
+.markdownHighlight {
+  pointer-events: none;
+  position: absolute;
+  inset: 0;
+  margin: 0;
+  padding: 12px;
+  overflow: hidden;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  font: inherit;
+  tab-size: 2;
+  color: #1f2328;
+}
+
+.markdownHighlight code {
+  display: block;
+  min-height: 100%;
+  margin: 0;
+  padding: 0;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  font: inherit;
+  line-height: inherit;
+  tab-size: inherit;
+  background: transparent;
+  transform: translate(0, 0);
+  will-change: transform;
+}
+
+.markdownHighlight :global(.hljs) {
+  display: block;
+  overflow: visible;
+  padding: 0;
+  margin: 0;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  background: transparent;
+  color: #1f2328;
+}
+
+.markdownHighlight :global(.hljs-section),
+.markdownHighlight :global(.hljs-title) {
+  color: #0a58ca;
+}
+
+.markdownHighlight :global(.hljs-strong) {
+  color: #1f2328;
+  font-weight: 700;
+}
+
+.markdownHighlight :global(.hljs-emphasis) {
+  color: #1f2328;
+  font-style: italic;
+}
+
+.markdownHighlight :global(.hljs-code),
+.markdownHighlight :global(.hljs-quote) {
+  color: #5a6878;
+}
+
+.markdownHighlight :global(.hljs-bullet),
+.markdownHighlight :global(.hljs-link),
+.markdownHighlight :global(.hljs-symbol) {
+  color: #7c3aed;
+}
+
+.markdownHighlight :global(.hljs-string),
+.markdownHighlight :global(.hljs-meta) {
+  color: #0d7a46;
+}
+
+.markdownEditorTextarea {
+  position: absolute;
+  inset: 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  color: transparent;
+  -webkit-text-fill-color: transparent;
+  caret-color: #1f2328;
+  overflow: auto;
+  font: inherit;
+  line-height: inherit;
+  tab-size: inherit;
+}
+
+.markdownEditorTextarea::selection {
+  background: rgb(69 136 255 / 30%);
+  color: transparent;
 }
 
 .editorMainTextarea:focus {
