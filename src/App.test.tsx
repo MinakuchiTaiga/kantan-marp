@@ -1,6 +1,21 @@
-import { fireEvent, render, screen } from '@testing-library/react';
+import { fireEvent, render, screen, waitFor } from '@testing-library/preact';
 import { vi } from 'vitest';
 import App from './App';
+
+const { createDownloadHtmlMock } = vi.hoisted(() => ({
+  createDownloadHtmlMock: vi.fn<
+    (params: {
+      title: string;
+      markdown: string;
+      userCss: string;
+      defaultUserCss: string;
+    }) => Promise<string>
+  >(),
+}));
+
+vi.mock('./lib/exportHtml', () => ({
+  createDownloadHtml: createDownloadHtmlMock,
+}));
 
 vi.mock('@marp-team/marpit', () => {
   class MockMarpit {
@@ -16,6 +31,11 @@ vi.mock('@marp-team/marpit', () => {
 });
 
 describe('App', () => {
+  beforeEach(() => {
+    createDownloadHtmlMock.mockReset();
+    createDownloadHtmlMock.mockResolvedValue('<!doctype html><html></html>');
+  });
+
   it('starts in presentation mode', () => {
     render(<App />);
     expect(
@@ -36,5 +56,14 @@ describe('App', () => {
     expect(
       screen.queryByRole('button', { name: /セキュア版を保存/i }),
     ).not.toBeInTheDocument();
+  });
+
+  it('triggers export by Ctrl+S', async () => {
+    render(<App />);
+    fireEvent.keyDown(window, { key: 's', ctrlKey: true });
+
+    await waitFor(() => {
+      expect(createDownloadHtmlMock).toHaveBeenCalledTimes(1);
+    });
   });
 });
