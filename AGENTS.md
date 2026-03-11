@@ -17,6 +17,7 @@
 - このリポジトリでは、通常の動作確認・共有確認は `pnpm run build` 後の `pnpm run preview -- --host 127.0.0.1 --port 4173` を基本とすること
 - 開発中に「ビルド成果物（dist）」を確認・共有する場合は `pnpm run preview -- --host 127.0.0.1 --port 4173` を使用すること
 - `pnpm run dev` は実装中の高速フィードバック（HMR）が必要な場合にのみ使用すること
+- タスク完了時は、稼働中の開発サーバー（`pnpm run dev`）とプレビュー（`pnpm run preview -- --host 127.0.0.1 --port 4173`）のURLを提示し、開発者に確認を依頼すること
 
 ## Deliverables
 
