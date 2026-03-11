@@ -187,4 +187,42 @@ describe('App', () => {
       expect(slideHost).toHaveStyle({ transformOrigin: '25% 25%' });
     });
   });
+
+  it('inserts pasted image into markdown once from attachment form', async () => {
+    render(<App />);
+    fireEvent.keyDown(window, { key: 'Escape' });
+    fireEvent.click(
+      await screen.findByRole('button', { name: '画像添付フォームを表示' }),
+    );
+
+    const pasteZone = screen.getByDisplayValue(
+      'ここをフォーカスして Ctrl+V で画像を貼り付け',
+    );
+    const markdownTextarea = document.querySelector<HTMLTextAreaElement>(
+      'textarea.editor-main-textarea',
+    );
+
+    expect(markdownTextarea).not.toBeNull();
+    if (!markdownTextarea) return;
+
+    const imageFile = new File(['x'], 'sample.png', { type: 'image/png' });
+    const clipboardData = {
+      items: [
+        {
+          kind: 'file',
+          type: 'image/png',
+          getAsFile: () => imageFile,
+        },
+      ],
+    };
+
+    fireEvent.paste(pasteZone, { clipboardData });
+
+    await waitFor(() => {
+      expect(markdownTextarea.value).toContain('![sample.png](');
+      expect(markdownTextarea.value.match(/!\[sample\.png\]\(/g)).toHaveLength(
+        1,
+      );
+    });
+  });
 });
