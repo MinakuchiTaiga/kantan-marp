@@ -86,6 +86,8 @@ function App() {
     [markdown],
   );
   const totalSlides = Math.max(rendered.slides.length, 1);
+  const canPrevious = slideIndex > 0;
+  const canNext = slideIndex < totalSlides - 1;
 
   useEffect(() => {
     if (slideIndex <= totalSlides - 1) return;
@@ -349,6 +351,8 @@ function App() {
         isFullscreen={isFullscreen}
         slideIndex={slideIndex}
         totalSlides={totalSlides}
+        canPrevious={canPrevious}
+        canNext={canNext}
         title={presentationTitle}
         onToggleFullscreen={toggleFullscreen}
         onToggleMode={toggleMode}

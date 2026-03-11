@@ -16,6 +16,8 @@ type PresentationModeProps = {
   isFullscreen: boolean;
   slideIndex: number;
   totalSlides: number;
+  canPrevious: boolean;
+  canNext: boolean;
   title: string;
   onToggleFullscreen: () => void;
   onToggleMode: () => void;
@@ -42,6 +44,8 @@ export const PresentationMode = ({
   isFullscreen,
   slideIndex,
   totalSlides,
+  canPrevious,
+  canNext,
   title,
   onToggleFullscreen,
   onToggleMode,
@@ -76,6 +80,7 @@ export const PresentationMode = ({
             type="button"
             aria-label="前のスライドへ移動"
             className={styles.navZonePrev}
+            disabled={!canPrevious}
             onMouseDown={(event) => event.preventDefault()}
             onClick={onPreviousSlide}
           />
@@ -83,6 +88,7 @@ export const PresentationMode = ({
             type="button"
             aria-label="次のスライドへ移動"
             className={styles.navZoneNext}
+            disabled={!canNext}
             onMouseDown={(event) => event.preventDefault()}
             onClick={onNextSlide}
           />
@@ -117,6 +123,7 @@ export const PresentationMode = ({
             onClick={onPreviousSlide}
             aria-label="前のスライドへ移動"
             title="前のスライドへ移動"
+            disabled={!canPrevious}
           >
             <span className={styles.triangleLeft} aria-hidden="true" />
           </Button>
@@ -125,6 +132,7 @@ export const PresentationMode = ({
             onClick={onNextSlide}
             aria-label="次のスライドへ移動"
             title="次のスライドへ移動"
+            disabled={!canNext}
           >
             <span className={styles.triangleRight} aria-hidden="true" />
           </Button>

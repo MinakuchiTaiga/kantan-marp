@@ -127,6 +127,35 @@ describe('App', () => {
     });
   });
 
+  it('disables previous/next controls at slide boundaries', async () => {
+    render(<App />);
+
+    const prevButtonsAtStart = screen.getAllByRole('button', {
+      name: '前のスライドへ移動',
+    });
+    const nextButtonsAtStart = screen.getAllByRole('button', {
+      name: '次のスライドへ移動',
+    });
+    expect(prevButtonsAtStart).toHaveLength(2);
+    expect(nextButtonsAtStart).toHaveLength(2);
+    prevButtonsAtStart.forEach((button) => expect(button).toBeDisabled());
+    nextButtonsAtStart.forEach((button) => expect(button).toBeEnabled());
+
+    fireEvent.wheel(window, { deltaY: 120 });
+    await waitFor(() => {
+      expect(screen.getByText('2 / 2')).toBeInTheDocument();
+    });
+
+    const prevButtonsAtEnd = screen.getAllByRole('button', {
+      name: '前のスライドへ移動',
+    });
+    const nextButtonsAtEnd = screen.getAllByRole('button', {
+      name: '次のスライドへ移動',
+    });
+    prevButtonsAtEnd.forEach((button) => expect(button).toBeEnabled());
+    nextButtonsAtEnd.forEach((button) => expect(button).toBeDisabled());
+  });
+
   it('zooms slide by Ctrl+wheel in fullscreen mode', async () => {
     render(<App />);
 
