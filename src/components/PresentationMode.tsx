@@ -11,6 +11,8 @@ type PresentationModeProps = {
   laserEnabled: boolean;
   laserVisible: boolean;
   laserPoint: { x: number; y: number };
+  slideZoomScale: number;
+  slideZoomOrigin: { x: number; y: number };
   isFullscreen: boolean;
   slideIndex: number;
   totalSlides: number;
@@ -35,6 +37,8 @@ export const PresentationMode = ({
   laserEnabled,
   laserVisible,
   laserPoint,
+  slideZoomScale,
+  slideZoomOrigin,
   isFullscreen,
   slideIndex,
   totalSlides,
@@ -86,6 +90,10 @@ export const PresentationMode = ({
             ref={slideHostRef}
             className={`${styles.slideHost} slide-host marpit`}
             data-testid="slide-host"
+            style={{
+              transform: `scale(${slideZoomScale})`,
+              transformOrigin: `${slideZoomOrigin.x}% ${slideZoomOrigin.y}%`,
+            }}
             // biome-ignore lint/security/noDangerouslySetInnerHtml: Marp render output must be applied as slide HTML.
             dangerouslySetInnerHTML={{
               __html: slideHtml,

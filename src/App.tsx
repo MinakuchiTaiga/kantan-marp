@@ -16,6 +16,9 @@ import type { EditorTab, Mode } from './types/presentation';
 
 const DEFAULT_MARKDOWN_ID = 'kantan-default-markdown';
 const DEFAULT_MARKDOWN = '';
+const SLIDE_ZOOM_MIN = 1;
+const SLIDE_ZOOM_MAX = 4;
+const SLIDE_ZOOM_STEP = 0.15;
 const DEFAULT_USER_CSS = `${marpDefaultThemeCss}
 :root{--app-background:#f8f8f8;--app-radius:4px;--ui-border:#ccc;--slide-border:#ccc;--slide-shadow:0 2px 4px #efefef;--progress-line-color:#009287}body{background:var(--app-background)}button,textarea{border:1px solid var(--ui-border);border-radius:var(--app-radius)}.presentation-root,.editor-root{background:var(--app-background)}.slide-host{border:1px solid var(--slide-border);border-radius:var(--app-radius);box-shadow:var(--slide-shadow)}.presentation-fullscreen-button{border-radius:var(--app-radius)}.presentation-progress-fill{background:var(--progress-line-color)}.panel,.error-box,.editor-main-textarea,.preview-content,.paste-zone{border-color:var(--ui-border);border-radius:var(--app-radius)}
 `;
@@ -69,6 +72,8 @@ function App() {
   const [laserEnabled, setLaserEnabled] = useState(false);
   const [laserVisible, setLaserVisible] = useState(false);
   const [laserPoint, setLaserPoint] = useState({ x: 50, y: 50 });
+  const [slideZoomScale, setSlideZoomScale] = useState(1);
+  const [slideZoomOrigin, setSlideZoomOrigin] = useState({ x: 50, y: 50 });
 
   const markdownTextareaRef = useRef<HTMLTextAreaElement | null>(null);
   const attachmentIdRef = useRef(0);
@@ -166,6 +171,45 @@ function App() {
     onLastSlide: lastSlide,
     onToggleLaser: toggleLaser,
   });
+
+  useEffect(() => {
+    if (mode === 'presentation' && isFullscreen) return;
+    setSlideZoomScale(1);
+    setSlideZoomOrigin({ x: 50, y: 50 });
+  }, [isFullscreen, mode]);
+
+  useEffect(() => {
+    const onWheelForZoom = (event: WheelEvent) => {
+      if (mode !== 'presentation' || !isFullscreen || !event.ctrlKey) return;
+
+      const target = slideHostRef.current;
+      if (!target) return;
+
+      const rect = target.getBoundingClientRect();
+      if (rect.width <= 0 || rect.height <= 0) return;
+
+      event.preventDefault();
+
+      const pointerX = ((event.clientX - rect.left) / rect.width) * 100;
+      const pointerY = ((event.clientY - rect.top) / rect.height) * 100;
+
+      setSlideZoomOrigin({
+        x: Math.min(Math.max(pointerX, 0), 100),
+        y: Math.min(Math.max(pointerY, 0), 100),
+      });
+
+      const direction = event.deltaY < 0 ? 1 : -1;
+      setSlideZoomScale((prev) =>
+        Math.min(
+          SLIDE_ZOOM_MAX,
+          Math.max(SLIDE_ZOOM_MIN, prev + direction * SLIDE_ZOOM_STEP),
+        ),
+      );
+    };
+
+    window.addEventListener('wheel', onWheelForZoom, { passive: false });
+    return () => window.removeEventListener('wheel', onWheelForZoom);
+  }, [isFullscreen, mode]);
 
   const insertImageToMarkdown = useCallback(
     (altText: string, dataUrl: string) => {
@@ -300,6 +344,8 @@ function App() {
         laserEnabled={laserEnabled}
         laserVisible={laserVisible}
         laserPoint={laserPoint}
+        slideZoomScale={slideZoomScale}
+        slideZoomOrigin={slideZoomOrigin}
         isFullscreen={isFullscreen}
         slideIndex={slideIndex}
         totalSlides={totalSlides}

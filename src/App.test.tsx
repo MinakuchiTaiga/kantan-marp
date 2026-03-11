@@ -36,6 +36,7 @@ vi.mock('@marp-team/marpit', () => {
 
 describe('App', () => {
   const requestFullscreenMock = vi.fn<() => Promise<void>>();
+  let fullscreenElementMock: Element | null = null;
 
   beforeEach(() => {
     createDownloadHtmlMock.mockReset();
@@ -51,8 +52,10 @@ describe('App', () => {
 
     Object.defineProperty(document, 'fullscreenElement', {
       configurable: true,
-      get: () => null,
+      get: () => fullscreenElementMock,
     });
+
+    fullscreenElementMock = null;
   });
 
   it('starts in presentation mode', () => {
@@ -121,6 +124,38 @@ describe('App', () => {
     fireEvent.wheel(window, { deltaY: -120 });
     await waitFor(() => {
       expect(screen.getByText('1 / 2')).toBeInTheDocument();
+    });
+  });
+
+  it('zooms slide by Ctrl+wheel in fullscreen mode', async () => {
+    render(<App />);
+
+    fullscreenElementMock = document.documentElement;
+    fireEvent(document, new Event('fullscreenchange'));
+
+    const slideHost = screen.getByTestId('slide-host');
+    vi.spyOn(slideHost, 'getBoundingClientRect').mockReturnValue({
+      x: 0,
+      y: 0,
+      left: 0,
+      top: 0,
+      right: 200,
+      bottom: 100,
+      width: 200,
+      height: 100,
+      toJSON: () => ({}),
+    });
+
+    fireEvent.wheel(window, {
+      ctrlKey: true,
+      deltaY: -120,
+      clientX: 50,
+      clientY: 25,
+    });
+
+    await waitFor(() => {
+      expect(slideHost).toHaveStyle({ transform: 'scale(1.15)' });
+      expect(slideHost).toHaveStyle({ transformOrigin: '25% 25%' });
     });
   });
 });
