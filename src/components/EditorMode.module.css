@@ -353,8 +353,32 @@
 
 .attachmentList {
   margin: 0;
-  padding-left: 18px;
+  padding-left: 0;
+  list-style: none;
   color: #5f5e5b;
+  display: grid;
+  gap: 8px;
+}
+
+.attachmentListItem {
+  border: 1px solid var(--ui-border, #ccc);
+  border-radius: 4px;
+  background: #ffffff;
+  padding: 10px;
+}
+
+.attachmentName {
+  display: block;
+  color: #37352f;
+  font-size: 13px;
+  margin-bottom: 8px;
+  word-break: break-all;
+}
+
+.attachmentActions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
 }
 
 .attachmentEmpty {

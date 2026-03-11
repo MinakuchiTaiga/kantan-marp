@@ -226,4 +226,97 @@ describe('App', () => {
       ).toHaveLength(1);
     });
   });
+
+  it('supports insert and delete actions for attached image', async () => {
+    render(<App />);
+    fireEvent.keyDown(window, { key: 'Escape' });
+    fireEvent.click(
+      await screen.findByRole('button', { name: '画像添付フォームを表示' }),
+    );
+
+    const pasteZone = screen.getByDisplayValue(
+      'ここをフォーカスして Ctrl+V で画像を貼り付け',
+    );
+    const markdownTextarea = document.querySelector<HTMLTextAreaElement>(
+      'textarea.editor-main-textarea',
+    );
+    expect(markdownTextarea).not.toBeNull();
+    if (!markdownTextarea) return;
+
+    const imageFile = new File(['x'], 'sample.png', { type: 'image/png' });
+    fireEvent.paste(pasteZone, {
+      clipboardData: {
+        items: [
+          {
+            kind: 'file',
+            type: 'image/png',
+            getAsFile: () => imageFile,
+          },
+        ],
+      },
+    });
+
+    await waitFor(() => {
+      expect(
+        markdownTextarea.value.match(/!\[sample\.png\]\(attachment:img_\d+\)/g),
+      ).toHaveLength(1);
+    });
+
+    fireEvent.click(screen.getByRole('button', { name: 'MDに挿入' }));
+
+    await waitFor(() => {
+      expect(
+        markdownTextarea.value.match(/!\[sample\.png\]\(attachment:img_\d+\)/g),
+      ).toHaveLength(2);
+    });
+
+    fireEvent.click(screen.getByRole('button', { name: '削除' }));
+
+    await waitFor(() => {
+      expect(
+        screen.queryByRole('button', { name: 'MDに挿入' }),
+      ).not.toBeInTheDocument();
+      expect(
+        screen.getByText('添付した画像名がここに表示されます'),
+      ).toBeInTheDocument();
+    });
+  });
+
+  it('supports download action for attached image', async () => {
+    const anchorClickMock = vi
+      .spyOn(HTMLAnchorElement.prototype, 'click')
+      .mockImplementation(() => {});
+
+    render(<App />);
+    fireEvent.keyDown(window, { key: 'Escape' });
+    fireEvent.click(
+      await screen.findByRole('button', { name: '画像添付フォームを表示' }),
+    );
+
+    const pasteZone = screen.getByDisplayValue(
+      'ここをフォーカスして Ctrl+V で画像を貼り付け',
+    );
+    const imageFile = new File(['x'], 'sample.png', { type: 'image/png' });
+    fireEvent.paste(pasteZone, {
+      clipboardData: {
+        items: [
+          {
+            kind: 'file',
+            type: 'image/png',
+            getAsFile: () => imageFile,
+          },
+        ],
+      },
+    });
+
+    const downloadButton = await screen.findByRole('button', {
+      name: 'ダウンロード',
+    });
+    fireEvent.click(downloadButton);
+
+    await waitFor(() => {
+      expect(anchorClickMock).toHaveBeenCalledTimes(1);
+    });
+    anchorClickMock.mockRestore();
+  });
 });

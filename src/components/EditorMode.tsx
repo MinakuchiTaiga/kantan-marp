@@ -30,6 +30,9 @@ type EditorModeProps = {
     event: React.ChangeEvent<HTMLInputElement>,
   ) => Promise<void>;
   onPasteImage: (event: React.ClipboardEvent<HTMLElement>) => Promise<void>;
+  onInsertAttachmentToMarkdown: (attachmentId: string) => void;
+  onDownloadAttachment: (attachmentId: string) => void;
+  onDeleteAttachment: (attachmentId: string) => void;
 };
 
 export const EditorMode = ({
@@ -50,6 +53,9 @@ export const EditorMode = ({
   onSelectEditorTab,
   onAttachInputChange,
   onPasteImage,
+  onInsertAttachmentToMarkdown,
+  onDownloadAttachment,
+  onDeleteAttachment,
 }: EditorModeProps) => {
   const markdownHighlightContentRef = useRef<HTMLElement | null>(null);
   const cssHighlightContentRef = useRef<HTMLElement | null>(null);
@@ -245,7 +251,29 @@ export const EditorMode = ({
               {attachments.length > 0 ? (
                 <ul className={styles.attachmentList}>
                   {attachments.map((item) => (
-                    <li key={item.id}>{item.name}</li>
+                    <li key={item.id} className={styles.attachmentListItem}>
+                      <span className={styles.attachmentName}>{item.name}</span>
+                      <div className={styles.attachmentActions}>
+                        <Button
+                          size="small"
+                          onClick={() => onInsertAttachmentToMarkdown(item.id)}
+                        >
+                          MDに挿入
+                        </Button>
+                        <Button
+                          size="small"
+                          onClick={() => onDownloadAttachment(item.id)}
+                        >
+                          ダウンロード
+                        </Button>
+                        <Button
+                          size="small"
+                          onClick={() => onDeleteAttachment(item.id)}
+                        >
+                          削除
+                        </Button>
+                      </div>
+                    </li>
                   ))}
                 </ul>
               ) : (

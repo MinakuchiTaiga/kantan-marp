@@ -314,6 +314,36 @@ function App() {
     [handleAttachFiles],
   );
 
+  const handleInsertAttachmentToMarkdown = useCallback(
+    (attachmentId: string) => {
+      const target = attachments.find((attachment) => attachment.id === attachmentId);
+      if (!target) return;
+      insertImageToMarkdown(target.name, target.id);
+    },
+    [attachments, insertImageToMarkdown],
+  );
+
+  const handleDownloadAttachment = useCallback(
+    (attachmentId: string) => {
+      const target = attachments.find((attachment) => attachment.id === attachmentId);
+      if (!target) return;
+
+      const anchor = document.createElement('a');
+      anchor.href = target.dataUrl;
+      anchor.download = target.name;
+      document.body.append(anchor);
+      anchor.click();
+      anchor.remove();
+    },
+    [attachments],
+  );
+
+  const handleDeleteAttachment = useCallback((attachmentId: string) => {
+    setAttachments((prev) =>
+      prev.filter((attachment) => attachment.id !== attachmentId),
+    );
+  }, []);
+
   const downloadStandaloneHtml = useCallback(async () => {
     const html = await createDownloadHtml({
       title: presentationTitle,
@@ -428,6 +458,9 @@ function App() {
         event.target.value = '';
       }}
       onPasteImage={handlePasteImage}
+      onInsertAttachmentToMarkdown={handleInsertAttachmentToMarkdown}
+      onDownloadAttachment={handleDownloadAttachment}
+      onDeleteAttachment={handleDeleteAttachment}
       previewSlidesHtml={rendered.slides.join('')}
     />
   );
