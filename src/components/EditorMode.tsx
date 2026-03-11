@@ -1,7 +1,7 @@
 import { useMemo, useRef } from 'react';
 import type { RefObject, UIEvent } from 'react';
 import kantanLogo from '../assets/kantan-logo.svg';
-import { highlightMarkdown } from '../lib/highlight';
+import { highlightCss, highlightMarkdown } from '../lib/highlight';
 import type { EditorTab } from '../types/presentation';
 import { Button } from './ui/Button';
 import styles from './EditorMode.module.css';
@@ -52,14 +52,25 @@ export const EditorMode = ({
   onAttachInputChange,
   onPasteImage,
 }: EditorModeProps) => {
-  const highlightContentRef = useRef<HTMLElement | null>(null);
+  const markdownHighlightContentRef = useRef<HTMLElement | null>(null);
+  const cssHighlightContentRef = useRef<HTMLElement | null>(null);
   const highlightedMarkdown = useMemo(() => {
     const input = markdown.length === 0 ? ' ' : markdown;
     return highlightMarkdown(input);
   }, [markdown]);
+  const highlightedCss = useMemo(() => {
+    const input = userCss.length === 0 ? ' ' : userCss;
+    return highlightCss(input);
+  }, [userCss]);
 
   const handleMarkdownScroll = (event: UIEvent<HTMLTextAreaElement>) => {
-    const content = highlightContentRef.current;
+    const content = markdownHighlightContentRef.current;
+    if (!content) return;
+    content.style.transform = `translate(${-event.currentTarget.scrollLeft}px, ${-event.currentTarget.scrollTop}px)`;
+  };
+
+  const handleCssScroll = (event: UIEvent<HTMLTextAreaElement>) => {
+    const content = cssHighlightContentRef.current;
     if (!content) return;
     content.style.transform = `translate(${-event.currentTarget.scrollLeft}px, ${-event.currentTarget.scrollTop}px)`;
   };
@@ -121,7 +132,7 @@ export const EditorMode = ({
                 className={styles.markdownHighlight}
               >
                 <code
-                  ref={highlightContentRef}
+                  ref={markdownHighlightContentRef}
                   className="hljs language-markdown"
                   // biome-ignore lint/security/noDangerouslySetInnerHtml: highlight.js returns escaped HTML for user input.
                   dangerouslySetInnerHTML={{
@@ -140,12 +151,25 @@ export const EditorMode = ({
               />
             </div>
           ) : (
-            <textarea
-              className={`${styles.editorMainTextarea} editor-main-textarea`}
-              spellCheck={false}
-              value={userCss}
-              onChange={(event) => onChangeUserCss(event.target.value)}
-            />
+            <div className={styles.markdownEditorLayer}>
+              <pre className={`${styles.markdownHighlight} ${styles.cssHighlight}`}>
+                <code
+                  ref={cssHighlightContentRef}
+                  className="hljs language-css"
+                  // biome-ignore lint/security/noDangerouslySetInnerHtml: highlight.js returns escaped HTML for user input.
+                  dangerouslySetInnerHTML={{
+                    __html: highlightedCss,
+                  }}
+                />
+              </pre>
+              <textarea
+                className={`${styles.editorMainTextarea} ${styles.markdownEditorTextarea} editor-main-textarea`}
+                spellCheck={false}
+                value={userCss}
+                onChange={(event) => onChangeUserCss(event.target.value)}
+                onScroll={handleCssScroll}
+              />
+            </div>
           )}
 
           {showAttachmentPane ? (

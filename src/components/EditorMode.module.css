@@ -230,6 +230,28 @@
   color: #0d7a46;
 }
 
+.cssHighlight :global(.hljs-selector-tag),
+.cssHighlight :global(.hljs-selector-id),
+.cssHighlight :global(.hljs-selector-class),
+.cssHighlight :global(.hljs-selector-attr),
+.cssHighlight :global(.hljs-selector-pseudo) {
+  color: #0a58ca;
+}
+
+.cssHighlight :global(.hljs-attribute),
+.cssHighlight :global(.hljs-property) {
+  color: #7c3aed;
+}
+
+.cssHighlight :global(.hljs-number),
+.cssHighlight :global(.hljs-string) {
+  color: #0d7a46;
+}
+
+.cssHighlight :global(.hljs-comment) {
+  color: #5a6878;
+}
+
 .markdownEditorTextarea {
   position: absolute;
   inset: 0;

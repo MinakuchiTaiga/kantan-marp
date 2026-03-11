@@ -76,3 +76,10 @@ export const highlightMarkdown = (markdownText: string) => {
     ignoreIllegals: true,
   }).value;
 };
+
+export const highlightCss = (cssText: string) => {
+  return hljs.highlight(cssText, {
+    language: 'css',
+    ignoreIllegals: true,
+  }).value;
+};
