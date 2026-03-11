@@ -28,7 +28,8 @@
   text-shadow: 0 1px 0 rgb(255 255 255 / 70%);
 }
 
-.editorBrand img {
+.editorBrand img,
+.editorBrand svg {
   width: 36px;
   height: 36px;
   flex-shrink: 0;
