@@ -142,9 +142,24 @@ function App() {
     setSlideIndex(totalSlides - 1);
   }, [totalSlides]);
 
+  const toggleFullscreen = useCallback(async () => {
+    try {
+      if (document.fullscreenElement) {
+        await document.exitFullscreen();
+        return;
+      }
+
+      const target = presentationRootRef.current ?? document.documentElement;
+      await target.requestFullscreen();
+    } catch (_error) {
+      // Ignore fullscreen API failures caused by browser policies.
+    }
+  }, []);
+
   usePresentationShortcuts({
     mode,
     onToggleMode: toggleMode,
+    onToggleFullscreen: toggleFullscreen,
     onNextSlide: nextSlide,
     onPreviousSlide: previousSlide,
     onFirstSlide: firstSlide,
@@ -255,20 +270,6 @@ function App() {
     window.addEventListener('keydown', onKeyDown);
     return () => window.removeEventListener('keydown', onKeyDown);
   }, [triggerDownloadStandaloneHtml]);
-
-  const toggleFullscreen = async () => {
-    try {
-      if (document.fullscreenElement) {
-        await document.exitFullscreen();
-        return;
-      }
-
-      const target = presentationRootRef.current ?? document.documentElement;
-      await target.requestFullscreen();
-    } catch (_error) {
-      // Ignore fullscreen API failures caused by browser policies.
-    }
-  };
 
   const handleLaserMove = (event: React.MouseEvent<HTMLDivElement>) => {
     if (!laserEnabled) return;

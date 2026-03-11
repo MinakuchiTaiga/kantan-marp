@@ -142,7 +142,7 @@ export const PresentationMode = ({
             className="presentation-fullscreen-button"
             onClick={onToggleFullscreen}
           >
-            {isFullscreen ? '全画面解除' : '全画面表示'}
+            {isFullscreen ? '全画面解除 (F)' : '全画面表示 (F)'}
           </Button>
         </span>
       </footer>

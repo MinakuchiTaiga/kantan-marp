@@ -3,14 +3,15 @@ import { vi } from 'vitest';
 import App from './App';
 
 const { createDownloadHtmlMock } = vi.hoisted(() => ({
-  createDownloadHtmlMock: vi.fn<
-    (params: {
-      title: string;
-      markdown: string;
-      userCss: string;
-      defaultUserCss: string;
-    }) => Promise<string>
-  >(),
+  createDownloadHtmlMock:
+    vi.fn<
+      (params: {
+        title: string;
+        markdown: string;
+        userCss: string;
+        defaultUserCss: string;
+      }) => Promise<string>
+    >(),
 }));
 
 vi.mock('./lib/exportHtml', () => ({
@@ -21,7 +22,10 @@ vi.mock('@marp-team/marpit', () => {
   class MockMarpit {
     render() {
       return {
-        html: ['<section><h1>Mock Slide</h1></section>'],
+        html: [
+          '<section><h1>Mock Slide 1</h1></section>',
+          '<section><h1>Mock Slide 2</h1></section>',
+        ],
         css: 'section { color: #000; }',
       };
     }
@@ -31,9 +35,24 @@ vi.mock('@marp-team/marpit', () => {
 });
 
 describe('App', () => {
+  const requestFullscreenMock = vi.fn<() => Promise<void>>();
+
   beforeEach(() => {
     createDownloadHtmlMock.mockReset();
     createDownloadHtmlMock.mockResolvedValue('<!doctype html><html></html>');
+    requestFullscreenMock.mockReset();
+    requestFullscreenMock.mockResolvedValue();
+
+    Object.defineProperty(Element.prototype, 'requestFullscreen', {
+      configurable: true,
+      writable: true,
+      value: requestFullscreenMock,
+    });
+
+    Object.defineProperty(document, 'fullscreenElement', {
+      configurable: true,
+      get: () => null,
+    });
   });
 
   it('starts in presentation mode', () => {
@@ -48,8 +67,9 @@ describe('App', () => {
     render(<App />);
     fireEvent.keyDown(window, { key: 'Escape' });
 
-    expect(await screen.findByRole('heading', { name: /KanTan Marp Editor/i }))
-      .toBeInTheDocument();
+    expect(
+      await screen.findByRole('heading', { name: /KanTan Marp Editor/i }),
+    ).toBeInTheDocument();
     expect(
       screen.getByRole('button', { name: /保存 \(Ctrl\+S\)/i }),
     ).toBeInTheDocument();
@@ -64,6 +84,43 @@ describe('App', () => {
 
     await waitFor(() => {
       expect(createDownloadHtmlMock).toHaveBeenCalledTimes(1);
+    });
+  });
+
+  it('toggles fullscreen by F in presentation mode', async () => {
+    render(<App />);
+    fireEvent.keyDown(window, { key: 'f' });
+
+    await waitFor(() => {
+      expect(requestFullscreenMock).toHaveBeenCalledTimes(1);
+    });
+  });
+
+  it('does not toggle fullscreen by F in editor mode', async () => {
+    render(<App />);
+    fireEvent.keyDown(window, { key: 'Escape' });
+    fireEvent.keyDown(window, { key: 'f' });
+
+    await waitFor(() => {
+      expect(
+        screen.getByRole('heading', { name: /KanTan Marp Editor/i }),
+      ).toBeInTheDocument();
+    });
+    expect(requestFullscreenMock).not.toHaveBeenCalled();
+  });
+
+  it('moves slides by wheel scroll in presentation mode', async () => {
+    render(<App />);
+    expect(screen.getByText('1 / 2')).toBeInTheDocument();
+
+    fireEvent.wheel(window, { deltaY: 120 });
+    await waitFor(() => {
+      expect(screen.getByText('2 / 2')).toBeInTheDocument();
+    });
+
+    fireEvent.wheel(window, { deltaY: -120 });
+    await waitFor(() => {
+      expect(screen.getByText('1 / 2')).toBeInTheDocument();
     });
   });
 });
