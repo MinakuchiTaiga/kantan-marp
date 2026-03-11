@@ -6,7 +6,7 @@ import { Button } from './ui/Button';
 import styles from './EditorMode.module.css';
 
 type AttachmentItem = {
-  id: number;
+  id: string;
   name: string;
 };
 

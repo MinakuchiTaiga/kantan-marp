@@ -1,15 +1,18 @@
 import { minifyCss } from './minifyCss';
+import type { MarkdownAttachment } from './attachmentReference';
 
 type ExportHtmlParams = {
   title: string;
   markdown: string;
   userCss: string;
   defaultUserCss: string;
+  attachments: MarkdownAttachment[];
 };
 
 type ExportBootState = {
   markdown: string;
   userCss?: string;
+  attachments?: MarkdownAttachment[];
 };
 
 const BOOT_STATE_ID = 'kantan-initial-state';
@@ -102,6 +105,7 @@ export const createDownloadHtml = async ({
   markdown,
   userCss,
   defaultUserCss,
+  attachments,
 }: ExportHtmlParams): Promise<string> => {
   const { html: baseHtml, baseUrl } = await resolveBaseHtml();
   const parser = new DOMParser();
@@ -114,6 +118,7 @@ export const createDownloadHtml = async ({
     markdown,
     userCss:
       minifiedUserCss === minifiedDefaultUserCss ? undefined : minifiedUserCss,
+    attachments: attachments.length > 0 ? attachments : undefined,
   };
   const stateJson = JSON.stringify(state).replaceAll('<', '\\u003c');
 

@@ -5,6 +5,12 @@ import { PresentationMode } from './components/PresentationMode';
 import { useMarpSlides } from './hooks/useMarpSlides';
 import { usePresentationShortcuts } from './hooks/usePresentationShortcuts';
 import { insertAtSelection, toDataUrl } from './lib/attachment';
+import {
+  createMarkdownImageText,
+  isValidAttachmentId,
+  resolveAttachmentReferences,
+  type MarkdownAttachment,
+} from './lib/attachmentReference';
 import { createDownloadHtml } from './lib/exportHtml';
 import { createExportFileName } from './lib/exportVariant';
 import {
@@ -23,12 +29,22 @@ const DEFAULT_USER_CSS = `${marpDefaultThemeCss}
 :root{--app-background:#f8f8f8;--app-radius:4px;--ui-border:#ccc;--slide-border:#ccc;--slide-shadow:0 2px 4px #efefef;--progress-line-color:#009287}body{background:var(--app-background)}button,textarea{border:1px solid var(--ui-border);border-radius:var(--app-radius)}.presentation-root,.editor-root{background:var(--app-background)}.slide-host{border:1px solid var(--slide-border);border-radius:var(--app-radius);box-shadow:var(--slide-shadow)}.presentation-fullscreen-button{border-radius:var(--app-radius)}.presentation-progress-fill{background:var(--progress-line-color)}.panel,.error-box,.editor-main-textarea,.preview-content,.paste-zone{border-color:var(--ui-border);border-radius:var(--app-radius)}
 `;
 
-const createMarkdownImageText = (name: string, dataUrl: string): string =>
-  `\n![${name}](${dataUrl})\n`;
-
 type BootstrapState = {
   markdown?: string;
   userCss?: string;
+  attachments?: MarkdownAttachment[];
+};
+
+const isMarkdownAttachment = (value: unknown): value is MarkdownAttachment => {
+  if (!value || typeof value !== 'object') return false;
+  const candidate = value as Partial<MarkdownAttachment>;
+  return (
+    typeof candidate.id === 'string' &&
+    isValidAttachmentId(candidate.id) &&
+    typeof candidate.name === 'string' &&
+    typeof candidate.dataUrl === 'string' &&
+    candidate.dataUrl.startsWith('data:image/')
+  );
 };
 
 const readBootstrapState = (): BootstrapState => {
@@ -37,7 +53,13 @@ const readBootstrapState = (): BootstrapState => {
 
   try {
     const parsed = JSON.parse(stateElement.textContent) as BootstrapState;
-    return parsed ?? {};
+    if (!parsed) return {};
+    if (!Array.isArray(parsed.attachments)) return parsed;
+
+    return {
+      ...parsed,
+      attachments: parsed.attachments.filter(isMarkdownAttachment),
+    };
   } catch {
     return {};
   }
@@ -64,9 +86,9 @@ function App() {
   const [slideIndex, setSlideIndex] = useState(0);
   const [editorTab, setEditorTab] = useState<EditorTab>('markdown');
   const [showAttachmentPane, setShowAttachmentPane] = useState(false);
-  const [attachments, setAttachments] = useState<
-    Array<{ id: number; name: string }>
-  >([]);
+  const [attachments, setAttachments] = useState<MarkdownAttachment[]>(
+    bootstrapState.attachments ?? [],
+  );
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [laserEnabled, setLaserEnabled] = useState(false);
@@ -76,11 +98,15 @@ function App() {
   const [slideZoomOrigin, setSlideZoomOrigin] = useState({ x: 50, y: 50 });
 
   const markdownTextareaRef = useRef<HTMLTextAreaElement | null>(null);
-  const attachmentIdRef = useRef(0);
+  const attachmentIdRef = useRef(1);
   const presentationRootRef = useRef<HTMLElement>(null);
   const slideHostRef = useRef<HTMLDivElement>(null);
 
-  const rendered = useMarpSlides(markdown);
+  const renderedMarkdown = useMemo(
+    () => resolveAttachmentReferences(markdown, attachments),
+    [attachments, markdown],
+  );
+  const rendered = useMarpSlides(renderedMarkdown);
   const presentationTitle = useMemo(
     () => extractFirstMarkdownH1(markdown) ?? 'KanTan Marp',
     [markdown],
@@ -101,6 +127,17 @@ function App() {
   useEffect(() => {
     document.title = presentationTitle;
   }, [presentationTitle]);
+
+  useEffect(() => {
+    const maxAttachmentId = attachments.reduce((max, attachment) => {
+      const matched = /^img_(\d+)$/.exec(attachment.id);
+      if (!matched) return max;
+      const numericId = Number.parseInt(matched[1], 10);
+      if (Number.isNaN(numericId)) return max;
+      return Math.max(max, numericId);
+    }, 0);
+    attachmentIdRef.current = maxAttachmentId + 1;
+  }, [attachments]);
 
   useEffect(() => {
     const onFullscreenChange = () => {
@@ -214,8 +251,8 @@ function App() {
   }, [isFullscreen, mode]);
 
   const insertImageToMarkdown = useCallback(
-    (altText: string, dataUrl: string) => {
-      const insertText = createMarkdownImageText(altText, dataUrl);
+    (altText: string, attachmentId: string) => {
+      const insertText = createMarkdownImageText(altText, attachmentId);
       const markdownTextarea = markdownTextareaRef.current;
 
       if (!markdownTextarea) {
@@ -254,13 +291,12 @@ function App() {
 
       for (const file of files) {
         const dataUrl = await toDataUrl(file);
-        insertImageToMarkdown(file.name, dataUrl);
-        setAttachments((prev) =>
-          [{ id: attachmentIdRef.current++, name: file.name }, ...prev].slice(
-            0,
-            10,
-          ),
-        );
+        const attachmentId = `img_${attachmentIdRef.current++}`;
+        setAttachments((prev) => [
+          { id: attachmentId, name: file.name, dataUrl },
+          ...prev,
+        ]);
+        insertImageToMarkdown(file.name, attachmentId);
       }
     },
     [insertImageToMarkdown],
@@ -283,6 +319,7 @@ function App() {
       title: presentationTitle,
       markdown,
       userCss,
+      attachments,
       defaultUserCss: DEFAULT_USER_CSS,
     });
 
@@ -296,7 +333,7 @@ function App() {
     anchor.click();
     anchor.remove();
     URL.revokeObjectURL(objectUrl);
-  }, [markdown, presentationTitle, userCss]);
+  }, [attachments, markdown, presentationTitle, userCss]);
 
   const triggerDownloadStandaloneHtml = useCallback(() => {
     void downloadStandaloneHtml().catch(() => {

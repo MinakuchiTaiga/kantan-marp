@@ -51,6 +51,7 @@ describe('createDownloadHtml', () => {
       markdown: '# Slide 1',
       userCss: 'section { font-size: 32px; }',
       defaultUserCss: '',
+      attachments: [],
     });
 
     expect(html).toContain('<!doctype html>');
@@ -68,6 +69,7 @@ describe('createDownloadHtml', () => {
       markdown: '# Slide 1',
       userCss: 'section { font-size: 30px; }',
       defaultUserCss: '',
+      attachments: [],
     });
 
     const bytes = new TextEncoder().encode(html).length;

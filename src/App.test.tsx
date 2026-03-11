@@ -10,6 +10,7 @@ const { createDownloadHtmlMock } = vi.hoisted(() => ({
         markdown: string;
         userCss: string;
         defaultUserCss: string;
+        attachments: Array<{ id: string; name: string; dataUrl: string }>;
       }) => Promise<string>
     >(),
 }));
@@ -219,10 +220,10 @@ describe('App', () => {
     fireEvent.paste(pasteZone, { clipboardData });
 
     await waitFor(() => {
-      expect(markdownTextarea.value).toContain('![sample.png](');
-      expect(markdownTextarea.value.match(/!\[sample\.png\]\(/g)).toHaveLength(
-        1,
-      );
+      expect(markdownTextarea.value).toContain('![sample.png](attachment:img_');
+      expect(
+        markdownTextarea.value.match(/!\[sample\.png\]\(attachment:img_\d+\)/g),
+      ).toHaveLength(1);
     });
   });
 });
